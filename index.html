@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generative AI Leader — 合格ステップ管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: #1e2d45;
+  --border2: #263650;
+  --text: #e8edf5;
+  --text2: #8a9bb8;
+  --text3: #4a5a78;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --purple: #8b5cf6;
+  --glow: rgba(59,130,246,0.15);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -200px; right: -200px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+header {
+  margin-bottom: 40px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: var(--accent2);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  letter-spacing: .04em;
+}
+.badge::before { content: '●'; font-size: 8px; }
+h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+h1 span {
+  background: linear-gradient(135deg, var(--accent2), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: center;
+}
+.stat-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+.progress-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 32px;
+}
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.progress-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.progress-count {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent2);
+}
+.progress-track {
+  background: var(--border);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+  width: 0%;
+}
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.filter-btn {
+  font-size: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: .02em;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--accent2); }
+.filter-btn.active {
+  background: rgba(59,130,246,0.15);
+  border-color: var(--accent);
+  color: var(--accent2);
+}
+
+.section { margin-bottom: 32px; }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.section-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+.task {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, opacity .15s;
+  position: relative;
+  overflow: hidden;
+}
+.task:hover { border-color: var(--border2); }
+.task.priority-star { border-left: 3px solid var(--yellow); }
+.task.priority-exam { border-left: 3px solid var(--green); }
+.task.priority-key { border-left: 3px solid var(--purple); }
+.task.completed {
+  opacity: .55;
+  background: rgba(10,14,26,0.4);
+}
+.task.completed .task-title { text-decoration: line-through; text-decoration-color: var(--text3); }
+.task.hidden { display: none; }
+
+.task.priority-star::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle at top right, rgba(245,158,11,0.06), transparent 70%);
+  pointer-events: none;
+}
+
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.cb {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--border2);
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+  background: transparent;
+}
+.task:hover .cb { border-color: var(--accent); }
+.task.completed .cb {
+  background: var(--green);
+  border-color: var(--green);
+}
+.cb-check {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all .2s;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+.task.completed .cb-check { opacity: 1; transform: scale(1); }
+
+.task-body { flex: 1; min-width: 0; }
+.task-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.task-num {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: .04em;
+}
+.tag {
+  font-size: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .02em;
+}
+.tag-free { background: rgba(16,185,129,0.12); color: #34d399; }
+.tag-paid { background: rgba(239,68,68,0.12); color: #f87171; }
+.tag-time { background: rgba(138,155,184,0.1); color: var(--text2); }
+.tag-hot { background: rgba(245,158,11,0.12); color: #fbbf24; }
+.tag-jp { background: rgba(59,130,246,0.12); color: var(--accent2); }
+.tag-key { background: rgba(139,92,246,0.12); color: #a78bfa; }
+
+.task-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.45;
+  margin-bottom: 6px;
+  transition: color .15s;
+}
+.task-desc {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.task-desc strong { color: var(--text); font-weight: 500; }
+
+.task-links { display: flex; flex-direction: column; gap: 5px; }
+.task-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 12px;
+  color: var(--accent2);
+  transition: all .12s;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+}
+.task-link:hover {
+  background: rgba(59,130,246,0.1);
+  border-color: rgba(59,130,246,0.3);
+}
+.task-link-icon { font-size: 13px; flex-shrink: 0; }
+.task-link-label { color: var(--text2); font-size: 11px; margin-left: 2px; }
+
+.insight {
+  background: rgba(59,130,246,0.06);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.insight strong { color: var(--text); }
+
+.score-check {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  margin-left: 36px;
+}
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 3px 0;
+}
+.score-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.warning {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-top: 24px;
+}
+.warning strong { color: #fbbf24; }
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti-fall 1.8s ease-in forwards;
+}
+
+@media (max-width: 520px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 24px 16px 60px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Generative AI Leader 認定</div>
+    <h1>2日間 <span>合格ステップ</span> 管理</h1>
+    <p class="subtitle">技術の暗記ではなく、ビジネスシナリオで最適なGoogleサービスを選ぶ判断力を磨く</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val">$99</div>
+      <div class="stat-label">受験費用</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-done">0</div>
+      <div class="stat-label">完了ステップ</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">90分</div>
+      <div class="stat-label">試験時間</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">70%</div>
+      <div class="stat-label">合格ライン</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span class="progress-title">全体進捗</span>
+      <span class="progress-count" id="prog-count">0 / 12</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill"></div>
+    </div>
+    <div class="progress-labels">
+      <span>スタート</span>
+      <span>合格 🎉</span>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>合格の本質：</strong>公式の無料教材だけで合格圏に入れる設計。模擬試験は「シナリオの引き出しを増やす」ために使う。日本語受験者はラリオス氏＋G-gen記事が公式パスの補完として必読。<strong>直前の最新ニュースチェック</strong>（Gemini Enterprise・Agentspace・Customer Engagement Suite）が近年の合格者の差別化要因。
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filter('all', this)">すべて</button>
+    <button class="filter-btn" onclick="filter('todo', this)">未完了</button>
+    <button class="filter-btn" onclick="filter('done', this)">完了済み</button>
+    <button class="filter-btn" onclick="filter('star', this)">⭐ 最重要</button>
+  </div>
+
+  <!-- Section 1: 教材インプット -->
+  <div class="section" data-section="input">
+    <div class="section-header">
+      <div class="section-label">インプット — 公式教材</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="task priority-star" data-id="1" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 01</span>
+            <span class="tag tag-free">無料</span>
+            <span class="tag tag-hot">最重要</span>
+          </div>
+          <div class="task-title">⭐ Skills Boost — 公式ラーニングパス登録 → モジュール1・2</div>
+          <div class="task-desc">「Beyond the Chatbot」「Foundational Concepts」を通読。<strong>LLM・基盤モデル・機械学習3種</strong>（教師あり／教師なし／強化学習）の違いをメモ。AI経験があれば速読でOK。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://www.skills.google/paths/1951" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> skills.google/paths/1951 <span class="task-link-label">— 公式パス（無料）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task priority-star" data-id="2" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 02</span>
+            <span class="tag tag-free">無料</span>
+            <span class="tag tag-hot">出題35%・スキップ禁止</span>
+          </div>
+          <div class="task-title">⭐ モジュール3「Navigate the Landscape」を丁寧に読む</div>
+          <div class="task-desc">出題比率35%の最重要領域。<strong>Vertex AI・Gemini・AI Studio・NotebookLM・Agent Builder・Customer Engagement Suite</strong> の役割と使い分けを手書きメモ。「誰が使う・何のためか」を軸に整理。5層構造（インフラ→モデル→プラットフォーム→エージェント→アプリ）も図示する。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://www.skills.google/paths/1951/course_templates/1270" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> モジュール3 — Navigate the Landscape（Skills Boost） <span class="task-link-label">（無料）</span>
+            </a>
+            <a class="task-link" href="https://blog.g-gen.co.jp/entry/generative-ai-leader-exam" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📖</span> G-gen Tech Blog — サービス解説 <span class="task-link-label">（補完・無料）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="3" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 03</span>
+            <span class="tag tag-free">無料</span>
+            <span class="tag tag-time">約2.5時間</span>
+          </div>
+          <div class="task-title">モジュール4・5 を完了</div>
+          <div class="task-desc">「Transform Your Work」（Gemini for Workspace・NotebookLM）と「Transform Your Organization」（エージェント・KPI・組織変革）。<strong>責任ある AI の7原則・SAIF・Human-in-the-loop</strong> は必ず確認。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://www.skills.google/paths/1951/course_templates/1271" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> モジュール4 — Gen AI Apps: Transform Your Work <span class="task-link-label">（無料）</span>
+            </a>
+            <a class="task-link" href="https://www.skills.google/paths/1951/course_templates/1272" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> モジュール5 — Gen AI Agents: Transform Your Organization <span class="task-link-label">（無料）</span>
+            </a>
+            <a class="task-link" href="https://cloud.google.com/responsible-ai" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📋</span> Google 責任ある AI 原則 <span class="task-link-label">（無料）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="4" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 04</span>
+            <span class="tag tag-free">無料</span>
+            <span class="tag tag-jp">日本語</span>
+          </div>
+          <div class="task-title">ラリオス氏 note ＋ G-gen ブログを流し読み</div>
+          <div class="task-desc">公式パスで曖昧だった用語・サービス名をここで補完。<strong>日本語合格者の全員が参照している2大リソース。</strong> 英語が苦手な場合は最初にこれを読む方が効率的。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://cloud-ace.jp/column/detail493/" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🎓</span> クラウドエース ラリオス氏 集中講座 <span class="task-link-label">— 無料</span>
+            </a>
+            <a class="task-link" href="https://blog.g-gen.co.jp/entry/generative-ai-leader-exam" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📖</span> G-gen 試験対策マニュアル <span class="task-link-label">— 無料</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="5" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 05</span>
+            <span class="tag tag-free">無料</span>
+            <span class="tag tag-time">40〜60分</span>
+          </div>
+          <div class="task-title">Study Guide PDF を NotebookLM に読み込ませて Gemini と壁打ち</div>
+          <div class="task-desc">「Vertex AI と AI Studio の違いは？」「RAG が適切なシナリオは？」など自分で質問して確認。<strong>日本語合格者の定番仕上げ法。</strong></div>
+          <div class="task-links">
+            <a class="task-link" href="https://notebooklm.google.com" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> NotebookLM <span class="task-link-label">— notebooklm.google.com（無料）</span>
+            </a>
+            <a class="task-link" href="https://services.google.com/fh/files/misc/generative_ai_leader_study_guide_english.pdf" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📄</span> Study Guide PDF <span class="task-link-label">— 読み込み用（無料）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: 模擬試験 -->
+  <div class="section" data-section="mock">
+    <div class="section-header">
+      <div class="section-label">模擬試験 — シナリオ演習</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="task" data-id="6" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 06</span>
+            <span class="tag tag-free">無料</span>
+            <span class="tag tag-jp">英語のみ</span>
+          </div>
+          <div class="task-title">公式サンプル問題を解く（現在地の確認）</div>
+          <div class="task-desc">Googleフォーム形式。送信後に解答と解説が表示。回数無制限なので現在地確認に最適。間違えた問題の領域をメモしておく。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://forms.gle/soztS7Q74AXBncATA" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📝</span> 公式サンプル問題 <span class="task-link-label">— forms.gle（無料・回数無制限）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task priority-star" data-id="7" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 07</span>
+            <span class="tag tag-paid">¥1,500〜</span>
+            <span class="tag tag-jp">日本語</span>
+            <span class="tag tag-hot">目標 90%</span>
+          </div>
+          <div class="task-title">⭐ Udemy 日本語模擬試験を 90分タイマーで1セット</div>
+          <div class="task-desc">本番同様に<strong>タイマー90分・途中で止めない</strong>ルールで解く。終了後に正答率で判断する。</div>
+          <div class="score-check">
+            <div class="score-row"><div class="score-dot" style="background:var(--green)"></div><span style="font-size:12px;color:#34d399"><strong>90%以上</strong> → 受験GO</span></div>
+            <div class="score-row"><div class="score-dot" style="background:var(--yellow)"></div><span style="font-size:12px;color:#fbbf24"><strong>70〜90%</strong> → 間違い箇所だけ補強して受験</span></div>
+            <div class="score-row"><div class="score-dot" style="background:var(--red)"></div><span style="font-size:12px;color:#f87171"><strong>70%未満</strong> → 受験を1〜2日延期（$99節約）</span></div>
+          </div>
+          <div class="task-links" style="margin-top:10px">
+            <a class="task-link" href="https://www.udemy.com/course/google-cloudgenerative-ai-leader/" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🛒</span> Udemy【2026年最新】日英対応 模擬試験 <span class="task-link-label">— 推奨</span>
+            </a>
+            <a class="task-link" href="https://www.udemy.com/course/google-cloud-generative-ai-leader-japan/" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🛒</span> Udemy【日本語版】175問 模擬試験
+            </a>
+            <a class="task-link" href="https://www.udemy.com/course/gail-jp-2025/" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🛒</span> Udemy【GAIL】日本語版 GCP
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="8" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 08</span>
+            <span class="tag tag-time">30〜45分</span>
+          </div>
+          <div class="task-title">間違えた問題だけ補強（領域特定 → G-gen で再確認）</div>
+          <div class="task-desc">全問見直し不要。<strong>間違えた問題の領域を特定</strong>してG-genブログで該当サービスを再確認するだけ。新規インプットはしない。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://blog.g-gen.co.jp/entry/generative-ai-leader-exam" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📖</span> G-gen — 試験対策マニュアル（弱点領域の再確認） <span class="task-link-label">（無料）</span>
+            </a>
+            <a class="task-link" href="https://cloud.google.com/vertex-ai/docs/start/introduction-unified-platform" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📄</span> Vertex AI 公式ドキュメント <span class="task-link-label">（サービス系で間違えた場合）</span>
+            </a>
+            <a class="task-link" href="https://cloud.google.com/blog/ja/products/ai-machine-learning" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> Google Cloud AI ブログ（日本語） <span class="task-link-label">（最新サービス確認）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: 直前チェック -->
+  <div class="section" data-section="final">
+    <div class="section-header">
+      <div class="section-label">直前チェック — 差別化要因</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="task priority-key" data-id="9" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 09</span>
+            <span class="tag tag-free">無料</span>
+            <span class="tag tag-key">差別化ポイント</span>
+            <span class="tag tag-time">30分</span>
+          </div>
+          <div class="task-title">最新ニュース3トピックをチェック（近年の合格者の差別化要因）</div>
+          <div class="task-desc">試験は新サービスを発表後約2ヶ月で取り込む。以下3つだけ確認する：<br>・<strong>Gemini Enterprise</strong>（2025/10発表）<br>・<strong>Agentspace</strong>（AIエージェント統合環境）<br>・<strong>Customer Engagement Suite</strong>（コンタクトセンター AI）</div>
+          <div class="task-links">
+            <a class="task-link" href="https://cloud.google.com/blog/ja/topics/training-certifications" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📰</span> Google Cloud 公式ブログ（日本語）
+            </a>
+            <a class="task-link" href="https://zenn.dev/carenet/articles/google-cloud-generative-ai-leader" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📝</span> Zenn — Generative AI Leader 最新学習法
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: 試験予約・受験 -->
+  <div class="section" data-section="exam">
+    <div class="section-header">
+      <div class="section-label">試験予約・受験</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="task priority-star" data-id="10" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 10</span>
+            <span class="tag tag-paid">$99 USD</span>
+            <span class="tag tag-time">5分</span>
+          </div>
+          <div class="task-title">⭐ 試験を予約する（できるだけ早めに）</div>
+          <div class="task-desc"><strong>「もう$99払った」という締切効果が学習の集中力を最大化する。</strong> オンライン受験（自宅・Webカメラ必須）を選べば会場に行く必要なし。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://cloud.google.com/learn/certification/generative-ai-leader" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> 試験申込ページ — cloud.google.com <span class="task-link-label">（Pearson VUE 経由）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task priority-exam" data-id="11" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 11</span>
+            <span class="tag tag-time">90分</span>
+            <span class="tag tag-jp">日本語選択可</span>
+          </div>
+          <div class="task-title">🏁 本番受験（50〜60問・選択式のみ）</div>
+          <div class="task-desc">本番での3つの注意点：<br>1. <strong>「適切でないものは？」という否定型</strong>を見落とさない<br>2. シナリオ問題は「コスト・リソース・要件」を読み取ってから選ぶ<br>3. 見直し時間を10分確保する</div>
+          <div class="task-links">
+            <a class="task-link" href="https://cloud.google.com/learn/certification/generative-ai-leader" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🔗</span> 試験申込・詳細ページ — cloud.google.com <span class="task-link-label">（Pearson VUE 経由）</span>
+            </a>
+            <a class="task-link" href="https://home.pearsonvue.com/google/onvue" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">💻</span> Pearson VUE OnVUE — オンライン受験ガイド <span class="task-link-label">（自宅受験の場合）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task priority-exam" data-id="12" onclick="toggleTask(this)">
+      <div class="task-row">
+        <div class="cb"><span class="cb-check">✓</span></div>
+        <div class="task-body">
+          <div class="task-meta">
+            <span class="task-num">STEP 12</span>
+            <span class="tag tag-free">合格 🎉</span>
+          </div>
+          <div class="task-title">🎉 合格確認・認定証を受け取る</div>
+          <div class="task-desc">試験終了後、即時に合否が表示される。合格すると数日以内に Credly 経由でデジタルバッジが発行される。LinkedIn や名刺への追加を忘れずに。</div>
+          <div class="task-links">
+            <a class="task-link" href="https://www.credly.com/org/google-cloud/badge/google-cloud-certified-generative-ai-leader" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">🏅</span> Credly — Google Cloud 認定バッジ取得ページ <span class="task-link-label">（合格後）</span>
+            </a>
+            <a class="task-link" href="https://cloud.google.com/learn/certification" target="_blank" onclick="event.stopPropagation()">
+              <span class="task-link-icon">📜</span> Google Cloud 認定ポータル — 認定証確認 <span class="task-link-label">（合格後）</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning">
+    ⚠️ <strong>模試が 70% 未満の場合は受験を延期してください。</strong> 再受験は $99 かかります。あと1〜2日追加すれば確実に合格圏に入ります。1回で合格する方がトータルで安くなります。
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'genai-leader-progress';
+const total = 12;
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  } catch { return {}; }
+}
+
+function saveState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+let state = loadState();
+
+function updateProgress() {
+  const done = Object.values(state).filter(Boolean).length;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-count').textContent = done + ' / ' + total;
+  document.getElementById('stat-done').textContent = done;
+  if (done === total) launchConfetti();
+}
+
+function toggleTask(el) {
+  if (event.target.closest('a')) return;
+  const id = el.dataset.id;
+  state[id] = !state[id];
+  saveState(state);
+  el.classList.toggle('completed', state[id]);
+  updateProgress();
+}
+
+function filter(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.task').forEach(t => {
+    t.classList.remove('hidden');
+    if (type === 'todo' && t.classList.contains('completed')) t.classList.add('hidden');
+    if (type === 'done' && !t.classList.contains('completed')) t.classList.add('hidden');
+    if (type === 'star' && !t.classList.contains('priority-star') && !t.classList.contains('priority-key')) t.classList.add('hidden');
+  });
+}
+
+function launchConfetti() {
+  const colors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#60a5fa'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[i%colors.length]};animation-delay:${Math.random()*0.8}s;animation-duration:${1.5+Math.random()}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+}
+
+document.querySelectorAll('.task').forEach(t => {
+  const id = t.dataset.id;
+  if (state[id]) t.classList.add('completed');
+});
+updateProgress();
+</script>
+</body>
+</html>
